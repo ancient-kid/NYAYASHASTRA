@@ -1,0 +1,47 @@
+# NyayaShastra - Backend Dependencies
+
+# Core Framework
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+python-dotenv>=1.0.0
+
+# Database
+sqlalchemy>=2.0.25
+# psycopg2-binary  # Optional: for PostgreSQL, uncomment if needed
+alembic>=1.13.1
+
+# Vector Database & Embeddings
+chromadb>=0.4.22
+sentence-transformers>=2.3.1
+rank-bm25>=0.2.2
+langchain>=0.1.0
+langchain-community>=0.0.16
+langchain-openai>=0.1.0
+langchain-groq>=0.1.0
+
+# AI/LLM
+openai>=1.10.0
+tiktoken>=0.5.0
+
+# PDF Processing
+pypdf2>=3.0.1
+pdfplumber>=0.10.3
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.26.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# Async Support
+aiohttp>=3.9.0
+httpx>=0.26.0
+
+# Caching
+redis>=5.0.1
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.23.0
+
