@@ -7,7 +7,6 @@ import Index from "./pages/Index";
 import Comparison from "./pages/Comparison";
 import Documents from "./pages/Documents";
 import NotFound from "./pages/NotFound";
-import SignInPage from "./pages/SignInPage";
 import { ChatProvider } from "./hooks/useChatContext";
 
 const queryClient = new QueryClient();
@@ -22,7 +21,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index initialViewState="landing" />} />
             <Route path="/dashboard" element={<Index initialViewState="dashboard" />} />
-            <Route path="/sign-in" element={<SignInPage />} />
+            {/* Sign-in removed: app uses demo signup -> /dashboard flow */}
             <Route path="/comparison" element={<Comparison />} />
             <Route path="/documents" element={<Documents />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

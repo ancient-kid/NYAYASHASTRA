@@ -220,13 +220,15 @@ export const LandingPage = ({ language: initialLanguage, onStartChat, onEnterDas
                             </Button>
                         </div>
 
-                        {/* Sign Up Button */}
-                        <Link to="/dashboard">
-                            <Button size="sm" className="rounded-full px-5 gap-2 btn-shimmer">
-                                {language === 'en' ? 'Sign Up' : 'साइन अप'}
-                                <ArrowRight className="h-4 w-4" />
-                            </Button>
-                        </Link>
+                        {/* Sign Up Button (use callback to enter dashboard without page reload) */}
+                        <Button
+                            size="sm"
+                            className="rounded-full px-5 gap-2 btn-shimmer"
+                            onClick={() => onEnterDashboard()}
+                        >
+                            {language === 'en' ? 'Sign Up' : 'साइन अप'}
+                            <ArrowRight className="h-4 w-4" />
+                        </Button>
                     </div>
                 </div>
             </motion.header>

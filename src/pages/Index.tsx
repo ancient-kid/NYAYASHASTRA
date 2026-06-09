@@ -237,6 +237,17 @@ const Index = ({ initialViewState = "dashboard" }: IndexProps) => {
     };
   });
 
+  if (viewState === "landing") {
+    return (
+      <LandingPage
+        language={language}
+        onStartChat={handleStartChat}
+        onEnterDashboard={handleEnterDashboard}
+        onLanguageChange={setLanguage}
+      />
+    );
+  }
+
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       <Header
@@ -247,15 +258,6 @@ const Index = ({ initialViewState = "dashboard" }: IndexProps) => {
 
       <div className="flex-1 flex overflow-hidden">
         <div className="flex-1 flex flex-col overflow-hidden">
-          {viewState === "landing" && (
-            <LandingPage
-              language={language}
-              onStartChat={handleStartChat}
-              onEnterDashboard={handleEnterDashboard}
-              onLanguageChange={setLanguage}
-            />
-          )}
-
           {viewState === "dashboard" && (
             <AuthenticatedDashboard
               language={language}

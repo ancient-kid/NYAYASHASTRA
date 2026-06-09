@@ -2,22 +2,10 @@
 
 # 🏛️ NYAYASHASTRA
 
-![NYAYASHASTRA](https://img.shields.io/badge/NYAYASHASTRA-AI%20Legal%20Assistant-blueviolet?style=for-the-badge)
-![Version](https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge)
-![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
-![Python](https://img.shields.io/badge/Python-3.10+-yellow?style=for-the-badge&logo=python)
-![React](https://img.shields.io/badge/React-18+-61DAFB?style=for-the-badge&logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript)
-
-**AI-Powered Legal Assistant for Indian Law**
-
-_A production-grade Multi-Agent RAG System delivering precise, verifiable, bilingual (English + Hindi) legal answers_
-
-[Live Demo](#-quick-start) · [API Docs](http://localhost:8000/docs) · [Report Bug](https://github.com/SatyamPandey-07/NYAYASHASTRA/issues)
 
 </div>
 
----
+
 
 ## 📋 Table of Contents
 
@@ -31,9 +19,7 @@ _A production-grade Multi-Agent RAG System delivering precise, verifiable, bilin
 - [API Reference](#-api-reference)
 - [Database Schema](#-database-schema)
 - [Environment Variables](#-environment-variables)
-- [Contributing](#-contributing)
 - [Disclaimer](#-disclaimer)
-- [License](#-license)
 
 ---
 
@@ -155,72 +141,171 @@ _A production-grade Multi-Agent RAG System delivering precise, verifiable, bilin
 
 ## 🚀 Quick Start
 
-### Prerequisites
+This section is organized by user type so people trying this repo from GitHub can choose the fastest path.
 
-- **Node.js** 18+
-- **Python** 3.10+
-- **npm** or **yarn**
+### 0) Prerequisites (All Users)
+
 - **Git**
+- **Node.js 18+**
+- **Python 3.10+**
 
-### One-Command Start (Windows)
+Verify tools:
 
 ```bash
-# Clone the repository
-git clone https://github.com/SatyamPandey-07/NYAYASHASTRA.git
+git --version
+node --version
+python --version
+```
+
+Clone the repository:
+
+```bash
+git clone https://github.com/ancient-kid/NYAYASHASTRA.git
 cd NYAYASHASTRA
-
-# Run the startup script
-.\start-dev.bat
 ```
 
-### Manual Setup
+### 1) Quick Demo User (Run Full App Locally)
 
-#### 1. Frontend Setup
+Use this if you just want to run the project and try chat/comparison/doc features.
 
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-```
-
-#### 2. Backend Setup
+#### Step A: Start Backend
 
 ```bash
-# Navigate to backend
 cd backend
-
-# Create virtual environment
 python -m venv venv
+```
 
-# Activate (Windows)
-.\venv\Scripts\activate
+Activate venv:
 
-# Activate (macOS/Linux)
+- **Windows PowerShell**
+
+```powershell
+.\venv\Scripts\Activate.ps1
+```
+
+- **Windows CMD**
+
+```bat
+venv\Scripts\activate.bat
+```
+
+- **macOS/Linux**
+
+```bash
 source venv/bin/activate
+```
 
-# Install dependencies
+Install dependencies and configure env:
+
+```bash
 pip install -r requirements.txt
+```
 
-# Copy environment file and configure
+Copy env file:
+
+- **Windows PowerShell**
+
+```powershell
+Copy-Item .env.example .env
+```
+
+- **macOS/Linux**
+
+```bash
 cp .env.example .env
+```
 
-# Seed the database with IPC/BNS data (213 mappings, 452 statutes)
+Optional but recommended for better LLM quality:
+
+- Add `GROQ_API_KEY` in `backend/.env`
+- Optionally add `OPENAI_API_KEY` as fallback
+
+Seed local legal data (first run only):
+
+```bash
 python -m app.seed_database
+```
 
-# Start API server
+Run backend:
+
+```bash
 python -m uvicorn app.main:app --reload --port 8000
 ```
 
-### 3. Access the Application
+#### Step B: Start Frontend (new terminal)
 
-| Service          | URL                                  |
-| ---------------- | ------------------------------------ |
-| **Frontend**     | http://localhost:5173 (or 8080/8081) |
-| **API Docs**     | http://localhost:8000/docs           |
-| **ReDoc**        | http://localhost:8000/redoc          |
-| **Health Check** | http://localhost:8000/health         |
+```bash
+# from repository root
+npm install
+```
+
+Create root `.env` file:
+
+```env
+VITE_API_URL=http://localhost:8000
+```
+
+Run frontend:
+
+```bash
+npm run dev
+```
+
+#### Step C: Open App
+
+| Service          | URL                        |
+| ---------------- | -------------------------- |
+| **Frontend**     | http://localhost:5173      |
+| **API Docs**     | http://localhost:8000/docs |
+| **ReDoc**        | http://localhost:8000/redoc |
+| **Health Check** | http://localhost:8000/health |
+
+### 2) Frontend-Only Contributor
+
+Use this if you are working only on UI/UX and want fast iteration.
+
+1. Start backend once using section **1) Quick Demo User**.
+2. In root, run:
+
+```bash
+npm install
+npm run dev
+```
+
+3. Run tests/lint as needed:
+
+```bash
+npm test
+npm run lint
+```
+
+### 3) Backend/API-Only Contributor
+
+Use this if you are building agents, APIs, retrieval, or database logic.
+
+```bash
+cd backend
+python -m venv venv
+# activate venv (see section 1)
+pip install -r requirements.txt
+python -m uvicorn app.main:app --reload --port 8000
+```
+
+API surface:
+
+- Swagger docs: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+
+### 4) Common First-Run Notes
+
+- First startup can be slow because embedding/vector dependencies may download models.
+- If port `8000` is busy, run backend on another port and update `VITE_API_URL`.
+- If port `5173` is busy, Vite picks another port automatically.
+- SQLite and Chroma data are created locally during run/seed.
+
+### 5) Stop Services
+
+- Press `Ctrl + C` in each running terminal.
 
 ---
 
@@ -290,7 +375,7 @@ NYAYASHASTRA/
 ├── package.json
 ├── vite.config.ts
 ├── tailwind.config.ts
-├── start-dev.bat                  # Windows startup script
+├── backend/scripts/               # Data ingestion and seeding scripts
 └── README.md
 ```
 
@@ -442,7 +527,7 @@ chat_sessions → chat_messages
 
 ## ⚙️ Environment Variables
 
-Create a `.env` file in the `backend/` directory:
+Create a `.env` file in the `backend/` directory (you can copy from `backend/.env.example`):
 
 ```env
 # API Configuration
@@ -461,14 +546,14 @@ EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
 
 # LLM Configuration (Groq - Primary)
 GROQ_API_KEY=your_groq_api_key
-GROQ_MODEL=llama-3.3-70b-versatile
+GROQ_MODEL=meta-llama/llama-4-scout-17b-16e-instruct
 
 # OpenAI (Fallback)
 OPENAI_API_KEY=your_openai_api_key
 OPENAI_MODEL=gpt-4-turbo-preview
 
-# Demo mode (no auth by default)
-# If you add auth later, document provider-specific keys here.
+# Optional
+HF_TOKEN=hf_xxx
 ```
 
 Create a `.env` in root for frontend:
@@ -477,33 +562,13 @@ Create a `.env` in root for frontend:
 VITE_API_URL=http://localhost:8000
 ```
 
----
+Minimum setup to run locally:
 
-## 🧪 Testing
-
-```bash
-# Frontend tests
-npm test
-
-# Backend tests
-cd backend
-pytest
-
-# With coverage
-pytest --cov=app
-```
+- `backend/.env`: set at least `GROQ_API_KEY` (recommended)
+- `/.env`: set `VITE_API_URL=http://localhost:8000`
 
 ---
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
 
 ## ⚠️ Disclaimer
 
@@ -513,32 +578,4 @@ pytest --cov=app
 >
 > While we strive for accuracy, laws and their interpretations can change. Users should verify all information with official government sources.
 
----
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 👥 Authors
-
-- **Satyam Pandey** - _Initial work_ - [SatyamPandey-07](https://github.com/SatyamPandey-07)
-
----
-
-## 🙏 Acknowledgments
-
-- Indian Government for making legal documents publicly accessible
-- Groq for fast LLM inference
-- The open-source community for amazing tools
-
----
-
-<div align="center">
-
-**Made with ❤️ for Indian Legal Community**
-
-⭐ Star this repo if you find it helpful!
-
-</div>
