@@ -1,0 +1,39 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env
+    environment:
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+      API_DEBUG: "false"
+      CORS_ORIGINS: http://localhost:5173
+      DATABASE_URL: sqlite:////app/backend/data/nyayashastra.db
+      CHROMA_PERSIST_DIR: /app/backend/data/chroma_db
+    volumes:
+      - nyayashastra-data:/app/backend/data
+      - nyayashastra-uploads:/app/backend/uploads
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    command: >
+      sh -c "python scripts/seed_db.py && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+    restart: unless-stopped
+
+volumes:
+  nyayashastra-data:
+  nyayashastra-uploads:

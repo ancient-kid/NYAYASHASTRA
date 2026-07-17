@@ -258,6 +258,23 @@ npm run dev
 | **Frontend**     | http://localhost:5173      |
 | **API Docs**     | http://localhost:8000/docs |
 | **ReDoc**        | http://localhost:8000/redoc |
+
+### 2) Docker Quick Start
+
+Use this when you want the full stack without installing Node or Python locally:
+
+```bash
+docker compose up --build
+```
+
+The backend seeds the SQLite database on startup, then serves the API on `http://localhost:8000`. The frontend is available at `http://localhost:5173`.
+
+Optional API keys can be provided through your shell or a root `.env` file before running Compose:
+
+```env
+GROQ_API_KEY=your_groq_api_key
+OPENAI_API_KEY=your_openai_api_key
+```
 | **Health Check** | http://localhost:8000/health |
 
 ### 2) Frontend-Only Contributor

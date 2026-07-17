@@ -1,0 +1,13 @@
+backend/
+node_modules/
+dist/
+coverage/
+.vite/
+*.tsbuildinfo
+.git/
+.vscode/
+chroma_db/
+uploads/
+*.db
+*.sqlite
+*.sqlite3
