@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
   Send,
   Mic,
@@ -24,6 +25,7 @@ import {
   Copy,
   Check,
   Share2,
+  BookOpen,
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import { Button } from "./ui/button";
@@ -206,29 +208,30 @@ export const ChatInterface = ({
   const getReferences = () => {
     if (!activeMessage) return { citations: [], statutes: [], caseLaws: [] };
 
-    const citations = activeMessage.citations || [];
+    const citations = Array.isArray(activeMessage.citations) ? activeMessage.citations : [];
     
     // Start with live message properties if they exist
-    const statutes: Statute[] = [...(activeMessage.statutes || [])];
-    const caseLaws: CaseLaw[] = [...(activeMessage.caseLaws || [])];
+    const statutes: Statute[] = Array.isArray(activeMessage.statutes) ? [...activeMessage.statutes] : [];
+    const caseLaws: CaseLaw[] = Array.isArray(activeMessage.caseLaws) ? [...activeMessage.caseLaws] : [];
 
     // If we don't have live statutes or case laws, extract them from citations
     citations.forEach((c) => {
+      if (!c) return;
       if (c.source === "indiankanoon" || c.source === "gazette" || c.type === "statute") {
-        // Simple check if it's a statute section based on title
-        const isStatute = c.type === "statute" || /section|BNS|IPC|Act/i.test(c.title);
+        const title = typeof c.title === "string" ? c.title : "";
+        const isStatute = c.type === "statute" || (title ? /section|BNS|IPC|Act/i.test(title) : false);
         
         if (isStatute) {
-          const sectionNum = c.sectionNumber || c.title.match(/Section\s+([A-Za-z0-9-]+)/)?.[1] || "N/A";
-          const actCode = c.actCode || c.title.split(" - ")[0] || "Statute";
-          const exists = statutes.some(s => s.sectionNumber === sectionNum && s.actCode === actCode);
+          const sectionNum = c.sectionNumber || (title ? title.match(/Section\s+([A-Za-z0-9-]+)/i)?.[1] : undefined) || "N/A";
+          const actCode = c.actCode || (title ? title.split(" - ")[0] : undefined) || "Statute";
+          const exists = statutes.some(s => s && s.sectionNumber === sectionNum && s.actCode === actCode);
           if (!exists) {
             statutes.push({
-              id: c.id,
+              id: c.id || String(Math.random()),
               sectionNumber: sectionNum,
               actCode: actCode,
-              actName: c.title.split(" - ")[0] || "Statute",
-              titleEn: c.title.split(": ")[1] || c.title,
+              actName: (title ? title.split(" - ")[0] : undefined) || "Statute",
+              titleEn: (title ? title.split(": ")[1] : undefined) || title || "Statute",
               titleHi: c.titleHi,
               contentEn: c.excerpt || "",
               contentHi: "",
@@ -236,20 +239,21 @@ export const ChatInterface = ({
           }
         } else {
           // Case Law fallback
-          const exists = caseLaws.some(cl => cl.caseName === c.title.replace(/\s*\([^)]+\)/g, ""));
+          const cleanedName = title ? title.replace(/\s*\([^)]+\)/g, "").trim() : "Case Law";
+          const exists = caseLaws.some(cl => cl && cl.caseName === cleanedName);
           if (!exists) {
             caseLaws.push({
-              id: c.id,
-              caseNumber: c.title.match(/\(([^)]+)\)/)?.[1] || "N/A",
-              caseName: c.title.replace(/\s*\([^)]+\)/g, ""),
+              id: c.id || String(Math.random()),
+              caseNumber: (title ? title.match(/\(([^)]+)\)/)?.[1] : undefined) || "N/A",
+              caseName: cleanedName || "Case Law",
               caseNameHi: c.titleHi,
-              court: c.court ? c.court.toLowerCase().replace(/ /g, "_") : "supreme_court",
-              courtName: c.court || "Supreme Court of India",
+              court: typeof c.court === "string" && c.court ? c.court.toLowerCase().replace(/ /g, "_") : "supreme_court",
+              courtName: typeof c.court === "string" && c.court ? c.court : "Supreme Court of India",
               judgmentDate: c.year ? `${c.year}-01-01` : undefined,
-              reportingYear: c.year,
+              reportingYear: typeof c.year === "number" ? c.year : undefined,
               summaryEn: c.excerpt || "",
-              isLandmark: c.isLandmark || false,
-              citationString: c.title.match(/\(([^)]+)\)/)?.[1] || undefined,
+              isLandmark: Boolean(c.isLandmark),
+              citationString: (title ? title.match(/\(([^)]+)\)/)?.[1] : undefined) || undefined,
               sourceUrl: c.url,
             });
           }
@@ -257,16 +261,36 @@ export const ChatInterface = ({
       }
     });
 
-    return { citations, statutes, caseLaws };
+    return { 
+      citations: Array.isArray(citations) ? citations : [], 
+      statutes: Array.isArray(statutes) ? statutes : [], 
+      caseLaws: Array.isArray(caseLaws) ? caseLaws : [] 
+    };
   };
 
   const { citations: activeCitations, statutes: activeStatutes, caseLaws: activeCaseLaws } = getReferences();
 
   // Helper to pre-process standalone brackets like [1] to [[ 1 ]](#citation-1)
-  const formatInlineCitations = (text: string): string => {
-    if (!text) return "";
-    // Match standalone [1], [2] that are not part of links
-    return text.replace(/(?<!\[)\[(\d+)\](?!\])(?!\()/g, "[[ $1 ]](#citation-$1)");
+  const formatInlineCitations = (text?: string): string => {
+    if (typeof text !== "string" || !text) return "";
+    try {
+      // Match standalone [1], [2] that are not part of links
+      return text.replace(/(?<!\[)\[(\d+)\](?!\])(?!\()/g, "[[ $1 ]](#citation-$1)");
+    } catch {
+      return text;
+    }
+  };
+
+  const formatTimestamp = (timestamp?: Date | string | number): string => {
+    if (!timestamp) return "";
+    try {
+      const d = new Date(timestamp);
+      return !isNaN(d.getTime())
+        ? d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        : "";
+    } catch {
+      return "";
+    }
   };
 
   const handleSelectStatute = (statute: Statute) => {
@@ -933,10 +957,7 @@ export const ChatInterface = ({
                           : "न्यायशास्त्र AI"}
                       </span>
                       <span className="text-xs text-muted-foreground ml-auto">
-                        {new Date(message.timestamp).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {formatTimestamp(message.timestamp)}
                       </span>
                     </div>
                   )}
@@ -947,7 +968,40 @@ export const ChatInterface = ({
                   >
                     {message.role === "assistant" ? (
                       <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
                         components={{
+                          table: ({ children }) => (
+                            <div className="my-4 overflow-x-auto rounded-xl border border-border/70 bg-card/40 backdrop-blur-sm shadow-sm">
+                              <table className="w-full text-left text-sm border-collapse min-w-[480px]">
+                                {children}
+                              </table>
+                            </div>
+                          ),
+                          thead: ({ children }) => (
+                            <thead className="bg-muted/70 text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border/70">
+                              {children}
+                            </thead>
+                          ),
+                          tbody: ({ children }) => (
+                            <tbody className="divide-y divide-border/40">
+                              {children}
+                            </tbody>
+                          ),
+                          tr: ({ children }) => (
+                            <tr className="transition-colors hover:bg-muted/30">
+                              {children}
+                            </tr>
+                          ),
+                          th: ({ children }) => (
+                            <th className="px-4 py-3 font-semibold text-foreground text-xs select-none">
+                              {children}
+                            </th>
+                          ),
+                          td: ({ children }) => (
+                            <td className="px-4 py-3 text-sm text-foreground/90 align-top leading-relaxed">
+                              {children}
+                            </td>
+                          ),
                           h1: ({ children }) => (
                             <h1 className="text-xl font-bold mt-4 mb-2 text-foreground">
                               {children}
@@ -1170,10 +1224,27 @@ export const ChatInterface = ({
                               const trimmed = section.trim();
                               if (!trimmed) return;
                               
+                              // Check if table
+                              const isTable = trimmed.includes("|") && trimmed.includes("---");
                               // Check if header
                               const isHeader = /^(Legal Analysis|Applicable|Regulatory|Sources|Disclaimer|Section|IPC|BNS|Key|Important)/i.test(trimmed);
                               
-                              if (isHeader) {
+                              if (isTable) {
+                                const rows = trimmed.split("\n").filter(l => l.trim().startsWith("|") && !l.includes("---"));
+                                if (rows.length > 1) {
+                                  rows.slice(1).forEach(row => {
+                                    const cells = row.split("|").map(s => s.trim()).filter(Boolean);
+                                    if (cells.length === 1) {
+                                      formatted += `• ${cells[0]}\n`;
+                                    } else if (cells.length === 2) {
+                                      formatted += `• *${cells[0]}*: ${cells[1]}\n`;
+                                    } else if (cells.length > 2) {
+                                      formatted += `• *${cells[0]}*: ${cells[1]} (${cells.slice(2).join(" — ")})\n`;
+                                    }
+                                  });
+                                  formatted += "\n";
+                                }
+                              } else if (isHeader) {
                                 // WhatsApp bold for headers
                                 const headerLine = trimmed.split("\n")[0].substring(0, 80);
                                 formatted += `\n*${headerLine}*\n\n`;
@@ -1372,11 +1443,32 @@ export const ChatInterface = ({
                               
                               checkPageBreak(30);
                               
+                              // Check if table
+                              const isTable = trimmedSection.includes("|") && trimmedSection.includes("---");
                               // Check if this is a header/title
                               const isHeader = /^(Legal Analysis|Applicable|Regulatory|Sources|Disclaimer|Section|IPC|BNS|Key|Important)/i.test(trimmedSection) ||
                                               /^[A-Z][A-Za-z\s]{5,}:/.test(trimmedSection);
                               
-                              if (isHeader) {
+                              if (isTable) {
+                                const rows = trimmedSection.split("\n").filter(l => l.trim().startsWith("|") && !l.includes("---"));
+                                if (rows.length > 1) {
+                                  rows.slice(1).forEach((row) => {
+                                    const cells = row.split("|").map(s => s.trim()).filter(Boolean);
+                                    if (cells.length > 0) {
+                                      checkPageBreak();
+                                      const text = cells.length > 1 ? `${cells[0]}: ${cells.slice(1).join(" — ")}` : cells[0];
+                                      doc.text("•", margin + 2, y);
+                                      const bulletLines = doc.splitTextToSize(text, maxWidth - 10);
+                                      bulletLines.forEach((bLine: string) => {
+                                        checkPageBreak();
+                                        doc.text(bLine, margin + 8, y);
+                                        y += lineHeight;
+                                      });
+                                      y += 1;
+                                    }
+                                  });
+                                }
+                              } else if (isHeader) {
                                 // Print as section header
                                 doc.setFillColor(245, 240, 230);
                                 doc.rect(margin - 2, y - 4, maxWidth + 4, 8, "F");
@@ -1480,10 +1572,7 @@ export const ChatInterface = ({
                   {/* User message timestamp */}
                   {message.role === "user" && (
                     <div className="text-xs text-muted-foreground mt-2 text-right">
-                      {new Date(message.timestamp).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {formatTimestamp(message.timestamp)}
                     </div>
                   )}
                 </div>

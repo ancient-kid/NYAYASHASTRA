@@ -107,7 +107,7 @@ const sampleCases: CaseLaw[] = [
     }
 ];
 
-const getCourtColor = (court: string) => {
+const getCourtColor = (court?: string) => {
     switch (court) {
         case 'supreme_court': return 'bg-amber-500/20 text-amber-300 border-amber-500/30';
         case 'delhi_high_court': return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
@@ -116,12 +116,12 @@ const getCourtColor = (court: string) => {
     }
 };
 
-const getCourtLabel = (court: string) => {
+const getCourtLabel = (court?: string) => {
     switch (court) {
         case 'supreme_court': return 'Supreme Court';
         case 'delhi_high_court': return 'Delhi HC';
         case 'bombay_high_court': return 'Bombay HC';
-        default: return court;
+        default: return court || 'Court';
     }
 };
 
@@ -129,9 +129,11 @@ export const CaseLawsPanel = ({ cases = [], language }: CaseLawsPanelProps) => {
     const [expandedId, setExpandedId] = useState<string | null>(null);
     const [filter, setFilter] = useState<'all' | 'landmark'>('all');
 
+    const safeCases = Array.isArray(cases) ? cases.filter(Boolean) : [];
+
     const filteredCases = filter === 'landmark'
-        ? cases.filter(c => c.isLandmark)
-        : cases;
+        ? safeCases.filter(c => c && c.isLandmark)
+        : safeCases;
 
     return (
         <div className="space-y-4">
@@ -165,18 +167,18 @@ export const CaseLawsPanel = ({ cases = [], language }: CaseLawsPanelProps) => {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-2">
                 <div className="glass-subtle rounded-lg p-2 text-center">
-                    <div className="text-lg font-bold text-primary">{cases.length}</div>
+                    <div className="text-lg font-bold text-primary">{safeCases.length}</div>
                     <div className="text-xs text-muted-foreground">Total</div>
                 </div>
                 <div className="glass-subtle rounded-lg p-2 text-center">
                     <div className="text-lg font-bold text-amber-400">
-                        {cases.filter(c => c.isLandmark).length}
+                        {safeCases.filter(c => c && c.isLandmark).length}
                     </div>
                     <div className="text-xs text-muted-foreground">Landmark</div>
                 </div>
                 <div className="glass-subtle rounded-lg p-2 text-center">
                     <div className="text-lg font-bold text-chart-2">
-                        {cases.filter(c => c.court === 'supreme_court').length}
+                        {safeCases.filter(c => c && c.court === 'supreme_court').length}
                     </div>
                     <div className="text-xs text-muted-foreground">SC</div>
                 </div>
@@ -190,7 +192,7 @@ export const CaseLawsPanel = ({ cases = [], language }: CaseLawsPanelProps) => {
 
                         return (
                             <motion.div
-                                key={caseItem.id}
+                                key={caseItem.id || `case-${idx}`}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.1 }}

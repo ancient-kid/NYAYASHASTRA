@@ -1,0 +1,63 @@
+If you hit a pedestrian while you had the green signal and you believe the pedestrian was at fault, several legal issues still need to be addressed. In India, even when the other party is “at fault,” the driver can still face liability under both criminal and civil law, and the burden of proof lies with the prosecution and the plaintiff respectively. Here’s what typically happens and what you can do to protect yourself:
+
+---
+
+### 1. Immediate Steps After the Accident
+
+| Action | Why it matters | How to do it |
+|--------|----------------|--------------|
+| **Stop the vehicle** | Required by the Motor Vehicles Act (MV Act) 1988. | Stay at the scene, turn on hazard lights. |
+| **Call emergency services** | To get medical help for the pedestrian and to document the incident. | Dial 112 or local ambulance number. |
+| **Provide information to police** | The police will file a First Information Report (FIR). | Give your name, address, vehicle details, and a brief statement of what happened. |
+| **Do not admit fault immediately** | Your statement will be used in the criminal case. | Stick to factual details (“I was driving with the green signal…”) without making judgments. |
+| **Document the scene** | Photos, video, witness statements help establish facts. | Take pictures of the vehicle, the pedestrian’s injuries, the road layout, and any traffic signs. |
+| **Obtain medical records** | These are crucial for both criminal and civil proceedings. | Ask the treating doctor to provide a detailed report. |
+
+---
+
+### 2. Criminal Liability
+
+1. **Section 304A, IPC** – *Causing death by negligence*  
+   - If the pedestrian dies, the driver can be charged with negligent homicide.  
+   - Penalty: up to 5 years’ imprisonment, fine, or both.
+
+2. **Section 337, IPC** – *Causing hurt by negligence*  
+   - For injuries that are not fatal, the driver may face up to 6 months’ imprisonment or a fine, or both.
+
+3. **MV Act, Section 27/29** – *Driving under influence / reckless driving*  
+   - If the driver was under the influence of alcohol or drove recklessly, additional penalties apply (penalty of 6 months to 2 years imprisonment, fine, or both).
+
+4. **MV Act, Section 35/36** – *Failure to obey traffic signals*  
+   - Even if the pedestrian was at fault, the driver’s failure to obey signals can be an aggravating factor.
+
+**Key point:** The prosecution must prove that the driver’s negligence was a substantial cause of the accident. The fact that the pedestrian was at fault does not automatically absolve the driver.
+
+---
+
+### 3. Civil Liability
+
+- **Compensation Claims** – The pedestrian’s family can file a civil suit for medical expenses, loss of earnings, pain and suffering, etc.  
+- **Insurance** – If you have a third‑party or comprehensive motor insurance policy, the insurer may cover the damages, provided you comply with the claim procedure and disclose the incident truthfully.
+
+---
+
+### 4. How to Mitigate Legal Consequences
+
+| Strategy | What it does | Practical tip |
+|----------|--------------|---------------|
+| **Cooperate with the police** | Shows good faith, may reduce penalties. | Provide all requested documents and be honest. |
+| **Seek legal counsel promptly** | Helps navigate the criminal and civil processes. | Find a lawyer experienced in traffic law. |
+| **Maintain medical records** | Strong evidence in both criminal and civil cases. | Keep copies of all hospital bills, doctor’s notes, and test results. |
+| **Notify your insurer early** | Avoids disputes over coverage. | Call the insurer within 24–48 hours of the incident. |
+| **Avoid self‑admission of fault** | Prevents potential self‑incrimination. | Stick to objective facts in your statement. |
+| **Document all communications** | Useful if disputes arise later. | Keep emails, texts, and call logs related to the incident. |
+
+---
+
+### 5. Possible Outcomes
+
+| Scenario | Likely Result | What to Expect |
+|----------|---------------|----------------|
+| **Pedestrian dies** | Criminal charge under 304A; civil suit for compensation. | Court may order imprisonment up to 5 years, fine, and compensation. |
+| **Pedestrian injured** | Criminal charge under 337; civil suit for damages. | Penalty could be up to 6 months imprisonment or fine; compensation may be awarded. |
+| **No injuries** | Possible fine or warning; civil claim usually limited to minimal damages. | You may be fined or given a warning,

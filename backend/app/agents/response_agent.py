@@ -375,7 +375,7 @@ Is this query relevant to the "{domain}" domain?
 Answer with ONLY "YES" or "NO". Keep it simple.
 """
         try:
-            response = await self.llm_service.generate(prompt, max_tokens=10, temperature=0.1)
+            response = await self.llm_service.generate(prompt, max_tokens=500, temperature=0.1)
             result = response.strip().upper()
             logger.info(f"Reliable LLM Check for '{domain}': {result}")
             return "YES" in result

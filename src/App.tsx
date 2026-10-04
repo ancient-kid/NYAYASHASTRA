@@ -9,28 +9,32 @@ import Documents from "./pages/Documents";
 import NotFound from "./pages/NotFound";
 import { ChatProvider } from "./hooks/useChatContext";
 
+import { ErrorBoundary } from "./components/ErrorBoundary";
+
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <ChatProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index initialViewState="landing" />} />
-            <Route path="/dashboard" element={<Index initialViewState="dashboard" />} />
-            {/* Sign-in removed: app uses demo signup -> /dashboard flow */}
-            <Route path="/comparison" element={<Comparison />} />
-            <Route path="/documents" element={<Documents />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </ChatProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary fallbackTitle="NyayaShastra encountered an unexpected error">
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <ChatProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index initialViewState="landing" />} />
+              <Route path="/dashboard" element={<Index initialViewState="dashboard" />} />
+              {/* Sign-in removed: app uses demo signup -> /dashboard flow */}
+              <Route path="/comparison" element={<Comparison />} />
+              <Route path="/documents" element={<Documents />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </ChatProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

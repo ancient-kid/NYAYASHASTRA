@@ -7,6 +7,7 @@ import { DomainSelection } from "@/components/DomainSelection";
 import { LandingPage } from "@/components/LandingPage";
 import { useChat } from "@/hooks/useApi";
 import { API_BASE_URL } from "@/services/api";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 interface Message {
   id: string;
@@ -66,19 +67,33 @@ const Index = ({ initialViewState = "dashboard" }: IndexProps) => {
     [],
   );
 
-  // Check if backend is available
+  // Check if backend is available (with retry if backend is still initializing)
   useEffect(() => {
-    const checkBackend = async () => {
+    let isMounted = true;
+    let retryTimer: NodeJS.Timeout;
+
+    const checkBackend = async (retries = 3) => {
       try {
         const response = await fetch(`${API_BASE_URL}/health`);
-        if (response.ok) {
+        if (response.ok && isMounted) {
           setUseBackendAPI(true);
+          return;
         }
       } catch {
-        setUseBackendAPI(false);
+        if (isMounted) {
+          setUseBackendAPI(false);
+          if (retries > 0) {
+            retryTimer = setTimeout(() => checkBackend(retries - 1), 2000);
+          }
+        }
       }
     };
     checkBackend();
+
+    return () => {
+      isMounted = false;
+      clearTimeout(retryTimer);
+    };
   }, []);
 
   const simulateAgentProcessing = useCallback(() => {
@@ -124,7 +139,21 @@ const Index = ({ initialViewState = "dashboard" }: IndexProps) => {
     async (content: string, domain?: string) => {
       setViewState("chat");
       const domainToUse = domain || selectedDomain;
-      if (useBackendAPI) {
+      let isLive = useBackendAPI;
+
+      if (!isLive) {
+        try {
+          const res = await fetch(`${API_BASE_URL}/health`);
+          if (res.ok) {
+            isLive = true;
+            setUseBackendAPI(true);
+          }
+        } catch {
+          isLive = false;
+        }
+      }
+
+      if (isLive) {
         try {
           await sendApiMessage(content, domainToUse);
         } catch (err) {
@@ -210,30 +239,32 @@ const Index = ({ initialViewState = "dashboard" }: IndexProps) => {
 
 
   // Map API messages to component format
-  const formattedMessages = messages.map((msg) => {
+  const formattedMessages = (Array.isArray(messages) ? messages : []).filter(Boolean).map((msg) => {
     return {
-      id: msg.id,
-      role: msg.role,
-      content: msg.content,
+      id: msg.id || String(Math.random()),
+      role: msg.role || "assistant",
+      content: msg.content || "",
       contentHindi: msg.contentHindi,
-      citations: msg.citations?.map((c: any) => ({
-        id: c.id || String(Math.random()),
-        source: c.source || "indiankanoon",
-        url: c.url || "",
-        title: c.title || "Legal Citation",
-        excerpt: c.excerpt, // Include the legal text excerpt
-        titleHi: c.titleHi,
-        type: c.type,
-        year: c.year,
-        court: c.court,
-        takeaway: c.takeaway,
-        isLandmark: c.isLandmark,
-        verified: c.verified,
-      })),
-      statutes: msg.statutes,
-      caseLaws: msg.caseLaws,
-      ipcBnsMappings: msg.ipcBnsMappings,
-      timestamp: msg.timestamp,
+      citations: Array.isArray(msg.citations)
+        ? msg.citations.filter(Boolean).map((c: any) => ({
+            id: c.id || String(Math.random()),
+            source: c.source || "indiankanoon",
+            url: c.url || "",
+            title: c.title || "Legal Citation",
+            excerpt: c.excerpt, // Include the legal text excerpt
+            titleHi: c.titleHi,
+            type: c.type,
+            year: c.year,
+            court: c.court,
+            takeaway: c.takeaway,
+            isLandmark: Boolean(c.isLandmark),
+            verified: Boolean(c.verified),
+          }))
+        : [],
+      statutes: Array.isArray(msg.statutes) ? msg.statutes : [],
+      caseLaws: Array.isArray(msg.caseLaws) ? msg.caseLaws : [],
+      ipcBnsMappings: Array.isArray(msg.ipcBnsMappings) ? msg.ipcBnsMappings : [],
+      timestamp: msg.timestamp || new Date(),
     };
   });
 
@@ -295,30 +326,32 @@ const Index = ({ initialViewState = "dashboard" }: IndexProps) => {
           )}
           
           {viewState === "chat" && (
-            <ChatInterface
-              messages={formattedMessages}
-              onSendMessage={(content, domain) => {
-                if (domain) setSelectedDomain(domain);
-                handleSendMessage(content, domain || selectedDomain);
-              }}
-              isProcessing={processing}
-              language={language}
-              selectedDomain={selectedDomain}
-              onLoadSession={async (sessionId) => {
-                if (useBackendAPI) {
-                  const data = await loadApiSession(sessionId);
-                  if (data?.domain) {
-                    setSelectedDomain(data.domain);
+            <ErrorBoundary fallbackTitle="Chat interface encountered an issue">
+              <ChatInterface
+                messages={formattedMessages}
+                onSendMessage={(content, domain) => {
+                  if (domain) setSelectedDomain(domain);
+                  handleSendMessage(content, domain || selectedDomain);
+                }}
+                isProcessing={processing}
+                language={language}
+                selectedDomain={selectedDomain}
+                onLoadSession={async (sessionId) => {
+                  if (useBackendAPI) {
+                    const data = await loadApiSession(sessionId);
+                    if (data?.domain) {
+                      setSelectedDomain(data.domain);
+                    }
                   }
-                }
-              }}
-              onNewChat={() => {
-                if (useBackendAPI) clearApiMessages();
-                else setLocalMessages([]);
-                // Go to domain selection for new chat
-                setViewState("domain-select");
-              }}
-            />
+                }}
+                onNewChat={() => {
+                  if (useBackendAPI) clearApiMessages();
+                  else setLocalMessages([]);
+                  // Go to domain selection for new chat
+                  setViewState("domain-select");
+                }}
+              />
+            </ErrorBoundary>
           )}
         </div>
       </div>

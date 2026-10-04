@@ -146,7 +146,7 @@ Format: 'YES' or 'NO | <explanation>'"""
                         {"role": "user", "content": user_prompt}
                     ]
                     
-                    llm_response = await llm_service.generate_chat(messages, max_tokens=100, temperature=0.0)
+                    llm_response = await llm_service.generate_chat(messages, max_tokens=500, temperature=0.0)
                     llm_response = llm_response.strip()
                     logger.info(f"LLM domain validation response: {llm_response}")
                     
@@ -301,7 +301,7 @@ Rules:
                     {"role": "user", "content": user_prompt}
                 ]
                 
-                reformulated = await llm_service.generate_chat(messages, max_tokens=150, temperature=0.0)
+                reformulated = await llm_service.generate_chat(messages, max_tokens=500, temperature=0.0)
                 reformulated = reformulated.strip()
                 # Clean up any potential markdown quotes from LLM
                 reformulated = re.sub(r'^["\'`]+|["\'`]+$', '', reformulated).strip()

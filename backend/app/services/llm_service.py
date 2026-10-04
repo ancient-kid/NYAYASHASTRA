@@ -21,7 +21,8 @@ class LLMService:
 
     MAX_RETRY_DELAY_SECONDS = 30.0
     MIN_RETRY_DELAY_SECONDS = 1.0
-    MAX_COMPLETION_TOKENS = 1200
+    MAX_COMPLETION_TOKENS = 4096
+    MIN_COMPLETION_TOKENS = 500
     
     def __init__(self):
         self.groq_api_key = settings.groq_api_key
@@ -72,7 +73,8 @@ class LLMService:
             return fallback_delay
 
     def _cap_max_tokens(self, max_tokens: int) -> int:
-        return max(1, min(max_tokens, self.MAX_COMPLETION_TOKENS))
+        cap = getattr(settings, "max_completion_tokens", self.MAX_COMPLETION_TOKENS)
+        return max(self.MIN_COMPLETION_TOKENS, min(max_tokens, cap))
 
     async def _request_with_retry(
         self,
@@ -170,7 +172,7 @@ class LLMService:
                     return
                 await asyncio.sleep(backoff_factor ** attempt)
     
-    async def generate(self, prompt: str, max_tokens: int = 2000, 
+    async def generate(self, prompt: str, max_tokens: int = 4096, 
                       temperature: float = 0.7) -> str:
         """Generate text from prompt using Groq or OpenAI."""
         max_tokens = self._cap_max_tokens(max_tokens)
@@ -183,7 +185,7 @@ class LLMService:
             return self._generate_fallback_response(prompt)
 
     async def generate_chat(self, messages: List[Dict[str, str]], 
-                           max_tokens: int = 2000, 
+                           max_tokens: int = 4096, 
                            temperature: float = 0.7) -> str:
         """Generate response for a list of chat messages with retries for rate limits."""
         max_tokens = self._cap_max_tokens(max_tokens)
@@ -210,7 +212,10 @@ class LLMService:
             )
             if response:
                 try:
-                    return response.json()["choices"][0]["message"]["content"]
+                    choice = response.json()["choices"][0]
+                    if choice.get("finish_reason") == "length":
+                        logger.warning("Groq generate_chat response was truncated because max_tokens was reached.")
+                    return choice["message"]["content"]
                 except (ValueError, KeyError, IndexError, TypeError) as e:
                     logger.error(f"Groq generate_chat response parse error: {e}")
 
@@ -234,7 +239,10 @@ class LLMService:
             )
             if response:
                 try:
-                    return response.json()["choices"][0]["message"]["content"]
+                    choice = response.json()["choices"][0]
+                    if choice.get("finish_reason") == "length":
+                        logger.warning("OpenAI generate_chat response was truncated because max_tokens was reached.")
+                    return choice["message"]["content"]
                 except (ValueError, KeyError, IndexError, TypeError) as e:
                     logger.error(f"OpenAI generate_chat response parse error: {e}")
 
@@ -304,8 +312,9 @@ class LLMService:
                 logger.error(f"OpenAI generate response parse error: {e}")
         return self._generate_fallback_response(prompt)
     
-    async def generate_streaming(self, prompt: str, max_tokens: int = 2000) -> AsyncGenerator[str, None]:
+    async def generate_streaming(self, prompt: str, max_tokens: int = 4096) -> AsyncGenerator[str, None]:
         """Generate text with streaming using Groq."""
+        max_tokens = self._cap_max_tokens(max_tokens)
         
         if self.provider == "groq":
             async for chunk in self._groq_generate_streaming(prompt, max_tokens):

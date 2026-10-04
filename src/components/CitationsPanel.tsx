@@ -72,6 +72,8 @@ const getSourceColor = (source: Citation['source']) => {
 };
 
 export const CitationsPanel = ({ citations = [], language, onSelectCitation }: CitationsPanelProps) => {
+  const safeCitations = Array.isArray(citations) ? citations.filter(Boolean) : [];
+
   return (
     <div className="glass-strong rounded-2xl overflow-hidden">
       {/* Header */}
@@ -82,7 +84,7 @@ export const CitationsPanel = ({ citations = [], language, onSelectCitation }: C
             {language === 'en' ? 'Verified Citations' : 'सत्यापित उद्धरण'}
           </h3>
           <Badge variant="outline" className="text-xs border-accent text-accent">
-            {citations.length} {language === 'en' ? 'sources' : 'स्रोत'}
+            {safeCitations.length} {language === 'en' ? 'sources' : 'स्रोत'}
           </Badge>
         </div>
       </div>
@@ -90,11 +92,11 @@ export const CitationsPanel = ({ citations = [], language, onSelectCitation }: C
       <ScrollArea className="h-[300px]">
         <div className="p-4 space-y-3">
           <AnimatePresence>
-            {citations.map((citation, idx) => {
+            {safeCitations.map((citation, idx) => {
               const Icon = getSourceIcon(citation.source);
               return (
                 <motion.a
-                  key={citation.id}
+                  key={citation.id || `cit-${idx}`}
                   href={citation.url}
                   target="_blank"
                   rel="noopener noreferrer"

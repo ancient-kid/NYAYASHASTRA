@@ -10,7 +10,7 @@ interface RetrievedStatutesPanelProps {
   onSelectStatute?: (statute: Statute) => void;
 }
 
-const getActColor = (act: string) => {
+const getActColor = (act?: string) => {
   switch (act) {
     case 'IPC':
       return 'bg-secondary/20 text-secondary border-secondary/30';
@@ -27,6 +27,8 @@ const getActColor = (act: string) => {
 };
 
 export const RetrievedStatutesPanel = ({ statutes = [], language, onSelectStatute }: RetrievedStatutesPanelProps) => {
+  const safeStatutes = Array.isArray(statutes) ? statutes.filter(Boolean) : [];
+
   return (
     <div className="glass-strong rounded-2xl overflow-hidden">
       {/* Header */}
@@ -37,16 +39,16 @@ export const RetrievedStatutesPanel = ({ statutes = [], language, onSelectStatut
             {language === 'en' ? 'Retrieved Statutes' : 'प्राप्त विधियाँ'}
           </h3>
           <Badge variant="outline" className="text-xs">
-            {statutes.length} {language === 'en' ? 'found' : 'मिले'}
+            {safeStatutes.length} {language === 'en' ? 'found' : 'मिले'}
           </Badge>
         </div>
       </div>
 
       <ScrollArea className="h-[280px]">
         <div className="p-4 space-y-3">
-          {statutes.map((statute, idx) => (
+          {safeStatutes.map((statute, idx) => (
             <motion.div
-              key={statute.id}
+              key={statute.id || `statute-${idx}`}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: idx * 0.1 }}
@@ -58,19 +60,19 @@ export const RetrievedStatutesPanel = ({ statutes = [], language, onSelectStatut
                   {/* Act Badge & Section */}
                   <div className="flex items-center gap-2 mb-2">
                     <Badge variant="outline" className={`text-xs ${getActColor(statute.actCode)}`}>
-                      {statute.actCode}
+                      {statute.actCode || 'Statute'}
                     </Badge>
-                    <span className="text-sm font-bold text-foreground">§{statute.sectionNumber}</span>
+                    <span className="text-sm font-bold text-foreground">§{statute.sectionNumber || 'N/A'}</span>
                   </div>
 
                   {/* Title */}
                   <h4 className="text-sm font-medium text-foreground mb-1 group-hover:text-primary transition-colors line-clamp-2">
-                    {language === 'hi' && statute.titleHi ? statute.titleHi : statute.titleEn}
+                    {(language === 'hi' && statute.titleHi ? statute.titleHi : statute.titleEn) || 'Statute Section'}
                   </h4>
 
                   {/* Content Preview */}
                   <p className="text-xs text-muted-foreground line-clamp-2">
-                    {language === 'hi' && statute.contentHi ? statute.contentHi : statute.contentEn}
+                    {(language === 'hi' && statute.contentHi ? statute.contentHi : statute.contentEn) || ''}
                   </p>
                 </div>
               </div>

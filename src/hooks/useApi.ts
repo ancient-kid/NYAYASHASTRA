@@ -116,15 +116,15 @@ export function useChat(options: UseChatOptions = {}) {
                 break;
 
               case "statutes":
-                setCurrentStatutes(chunk.data.statutes || []);
+                setCurrentStatutes((chunk.data?.statutes || []).map(api.transformStatute));
                 break;
 
               case "case_laws":
-                setCurrentCaseLaws(chunk.data.case_laws || []);
+                setCurrentCaseLaws((chunk.data?.case_laws || []).map(api.transformCaseLaw));
                 break;
 
               case "citations":
-                setCurrentCitations(chunk.data.citations || []);
+                setCurrentCitations((chunk.data?.citations || []).map(api.transformCitation));
                 break;
 
               case "response":

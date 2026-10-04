@@ -32,7 +32,8 @@ class Settings(BaseSettings):
     
     # Groq API (fast LLM inference)
     groq_api_key: str = ""
-    groq_model: str = "llama-3.3-70b-versatile"
+    groq_model: str = "openai/gpt-oss-20b"
+    max_completion_tokens: int = 4096
     
     # Local LLM
     use_local_llm: bool = False

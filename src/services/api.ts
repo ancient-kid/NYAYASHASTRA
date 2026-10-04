@@ -592,63 +592,66 @@ function transformChatResponse(data: any): ChatResponse {
   };
 }
 
-function transformCitation(data: any): Citation {
+export function transformCitation(data: any): Citation {
+  if (!data) return { id: "", title: "", source: "indiankanoon", url: "" };
   return {
-    id: data.id,
-    title: data.title,
-    titleHi: data.title_hi,
-    source: data.source,
-    sourceName: data.source_name,
-    url: data.url,
+    id: data.id || String(Math.random()),
+    title: data.title || "",
+    titleHi: data.title_hi || data.titleHi,
+    source: data.source || "indiankanoon",
+    sourceName: data.source_name || data.sourceName,
+    url: data.url || "",
     excerpt: data.excerpt,
     year: data.year,
     court: data.court,
     type: data.type,
-    isLandmark: data.is_landmark,
-    verified: data.verified,
+    isLandmark: Boolean(data.is_landmark ?? data.isLandmark),
+    verified: Boolean(data.verified),
     sectionNumber: data.section_number ?? data.sectionNumber,
     actCode: data.act_code ?? data.actCode,
   };
 }
 
-function transformStatute(data: any): Statute {
+export function transformStatute(data: any): Statute {
+  if (!data) return { id: "", sectionNumber: "", actCode: "", actName: "", titleEn: "", contentEn: "" };
   return {
-    id: data.id,
-    sectionNumber: data.section_number,
-    actCode: data.act_code,
-    actName: data.act_name,
-    titleEn: data.title_en,
-    titleHi: data.title_hi,
-    contentEn: data.content_en,
-    contentHi: data.content_hi,
+    id: data.id || String(Math.random()),
+    sectionNumber: data.section_number ?? data.sectionNumber ?? "",
+    actCode: data.act_code ?? data.actCode ?? "Statute",
+    actName: data.act_name ?? data.actName ?? "Statute",
+    titleEn: data.title_en ?? data.titleEn ?? "",
+    titleHi: data.title_hi ?? data.titleHi,
+    contentEn: data.content_en ?? data.contentEn ?? "",
+    contentHi: data.content_hi ?? data.contentHi,
     domain: data.domain,
-    punishmentDescription: data.punishment_description,
-    isBailable: data.is_bailable,
-    isCognizable: data.is_cognizable,
+    punishmentDescription: data.punishment_description ?? data.punishmentDescription,
+    isBailable: data.is_bailable ?? data.isBailable,
+    isCognizable: data.is_cognizable ?? data.isCognizable,
   };
 }
 
-function transformCaseLaw(data: any): CaseLaw {
+export function transformCaseLaw(data: any): CaseLaw {
+  if (!data) return { id: "", caseNumber: "", caseName: "", court: "supreme_court" };
   return {
-    id: data.id,
-    caseNumber: data.case_number,
-    caseName: data.case_name,
-    caseNameHi: data.case_name_hi,
-    court: data.court,
-    courtName: data.court_name,
-    judgmentDate: data.judgment_date,
-    reportingYear: data.reporting_year,
-    summaryEn: data.summary_en,
-    summaryHi: data.summary_hi,
-    isLandmark: data.is_landmark,
-    citationString: data.citation_string,
-    sourceUrl: data.source_url,
-    keyHoldings: data.key_holdings,
+    id: data.id || String(Math.random()),
+    caseNumber: data.case_number ?? data.caseNumber ?? "N/A",
+    caseName: data.case_name ?? data.caseName ?? "Case Law",
+    caseNameHi: data.case_name_hi ?? data.caseNameHi,
+    court: data.court || "supreme_court",
+    courtName: data.court_name ?? data.courtName ?? "Supreme Court of India",
+    judgmentDate: data.judgment_date ?? data.judgmentDate,
+    reportingYear: data.reporting_year ?? data.reportingYear,
+    summaryEn: data.summary_en ?? data.summaryEn ?? "",
+    summaryHi: data.summary_hi ?? data.summaryHi,
+    isLandmark: Boolean(data.is_landmark ?? data.isLandmark),
+    citationString: data.citation_string ?? data.citationString,
+    sourceUrl: data.source_url ?? data.sourceUrl,
+    keyHoldings: data.key_holdings ?? data.keyHoldings,
     domain: data.domain,
   };
 }
 
-function transformMapping(data: any): IPCBNSMapping {
+export function transformMapping(data: any): IPCBNSMapping {
   return {
     id: data.id,
     ipcSection: data.ipc_section,
